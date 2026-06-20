@@ -76,14 +76,18 @@
         if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
         const totalJam = diffMs / (1000 * 60 * 60);
 
-        const planTbsTerima = (totalJam * tphReal) + restanPagi - planRestan;
+        // Perhitungan Baru
+        const kemampuanOlah = totalJam * tphReal;
+        // Rumus Baru: Kemampuan Olah - Restan kemarin + Plan Restan
+        const planTbsTerima = kemampuanOlah - restanPagi + planRestan;
 
-        const output = `*Olah Hari ini*
+        const output = `*Plan Olah Hari ini*
 Tanggal : ${tgl}
 
 Start : ${start}
 Stop : ${stop}
 Plan Jam Olah : ${totalJam.toFixed(2)} Jam
+Kemampuan Olah : ${kemampuanOlah.toFixed(2)} Ton
 Restan kemarin : ${restanPagi} Ton
 Plan Restan : ${planRestan} Ton
 Plan Tbs Terima : ${planTbsTerima.toFixed(2)} Ton`;
