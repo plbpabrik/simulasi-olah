@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Simulasi Produksi</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; background-color: #f4f4f9; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 450px; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #333; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; cursor: pointer; border: none; border-radius: 6px; margin-top: 10px; font-weight: bold; transition: background 0.3s; }
+        .btn-generate { background-color: #28a745; color: white; }
+        .btn-generate:hover { background-color: #218838; }
+        .btn-copy { background-color: #007bff; color: white; margin-top: 15px; }
+        .btn-copy:hover { background-color: #0069d9; }
+        #resultArea { margin-top: 20px; padding: 15px; background: #f8f9fa; border-left: 5px solid #28a745; border-radius: 4px; display: none; white-space: pre-wrap; font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Simulasi Produksi</h2>
+    
+    <div class="input-group">
+        <label>Tanggal:</label>
+        <input type="date" id="tgl">
+    </div>
+    <div class="input-group">
+        <label>Start Jam:</label>
+        <input type="time" id="startJam">
+    </div>
+    <div class="input-group">
+        <label>Stop Jam:</label>
+        <input type="time" id="stopJam">
+    </div>
+    <div class="input-group">
+        <label>Tph Real (Ton):</label>
+        <input type="number" id="tphReal" placeholder="Contoh: 30">
+    </div>
+    <div class="input-group">
+        <label>Restan Tadi Pagi (Ton):</label>
+        <input type="number" id="restanPagi" placeholder="Contoh: 50">
+    </div>
+    <div class="input-group">
+        <label>Plan Restan (Ton):</label>
+        <input type="number" id="planRestan" placeholder="Contoh: 40">
+    </div>
+
+    <button class="btn-generate" onclick="generateWhatsApp()">Generate</button>
+    
+    <div id="resultArea"></div>
+    <button class="btn-copy" id="copyBtn" style="display:none;" onclick="copyToClipboard()">Copy for WhatsApp</button>
+</div>
+
+<script>
+    function generateWhatsApp() {
+        const tgl = document.getElementById('tgl').value;
+        const start = document.getElementById('startJam').value;
+        const stop = document.getElementById('stopJam').value;
+        const tphReal = parseFloat(document.getElementById('tphReal').value) || 0;
+        const restanPagi = parseFloat(document.getElementById('restanPagi').value) || 0;
+        const planRestan = parseFloat(document.getElementById('planRestan').value) || 0;
+
+        if (!tgl || !start || !stop) {
+            alert("Mohon lengkapi Tanggal, Jam Start, dan Jam Stop.");
+            return;
+        }
+
+        const s = new Date("1970-01-01T" + start + ":00Z");
+        const e = new Date("1970-01-01T" + stop + ":00Z");
+        
+        let diffMs = e - s;
+        if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
+        const totalJam = diffMs / (1000 * 60 * 60);
+
+        // Perhitungan Baru
+        const kemampuanOlah = totalJam * tphReal;
+        // Rumus Baru: Kemampuan Olah - Restan kemarin + Plan Restan
+        const planTbsTerima = kemampuanOlah - restanPagi + planRestan;
+
+        const output = `*Plan Olah Hari ini*
+Tanggal : ${tgl}
+
+Start : ${start}
+Stop : ${stop}
+Plan Jam Olah : ${totalJam.toFixed(2)} Jam
+Kemampuan Olah : ${kemampuanOlah.toFixed(2)} Ton
+Restan kemarin : ${restanPagi} Ton
+Plan Restan : ${planRestan} Ton
+Plan Tbs Terima : ${planTbsTerima.toFixed(2)} Ton`;
+
+        const resDiv = document.getElementById('resultArea');
+        resDiv.innerText = output;
+        resDiv.style.display = 'block';
+        document.getElementById('copyBtn').style.display = 'block';
+    }
+
+    function copyToClipboard() {
+        const text = document.getElementById('resultArea').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Teks berhasil disalin!");
+        });
+    }
+</script>
+
+</body>
+</html>
